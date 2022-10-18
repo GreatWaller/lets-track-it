@@ -2,6 +2,7 @@
 #include "video/OpenCVVideo.h"
 #include <iostream>
 #include "Config.h"
+#include "BBoxDrawingEvent.h"
 
 using namespace gryllidae;
 
@@ -26,6 +27,12 @@ Application::Application()
                                       Config::Get<int>("min_matching_features"),
                                       Config::Get<int>("max_miss")));
     mSkip = Config::Get<int>("skip_frame");
+
+    pDetector->SetEventCallback(
+        [this](auto &&...args) -> decltype(auto)
+        {
+            return this->OnEvent(std::forward<decltype(args)>(args)...);
+        });
 }
 
 bool Application::Step()
@@ -126,13 +133,13 @@ void Application::DrawBoxAndPoints(cv::Mat &image,
                                    std::vector<gryllidae::BBox> &detectedBoxes,
                                    std::vector<gryllidae::BBox> &trackingBoxes)
 {
-    for (auto &&bbox : detectedBoxes)
-    {
-        cv::rectangle(image,
-                      cv::Point2f(bbox.Box.x - bbox.Box.w, bbox.Box.y - bbox.Box.h / 2),
-                      cv::Point2f(bbox.Box.x + bbox.Box.w / 2, bbox.Box.y + bbox.Box.h / 2),
-                      cv::Scalar(0, 0, 255), 3, 1, 0);
-    }
+    // for (auto &&bbox : detectedBoxes)
+    // {
+    //     cv::rectangle(image,
+    //                   cv::Point2f(bbox.Box.x - bbox.Box.w, bbox.Box.y - bbox.Box.h / 2),
+    //                   cv::Point2f(bbox.Box.x + bbox.Box.w / 2, bbox.Box.y + bbox.Box.h / 2),
+    //                   cv::Scalar(0, 0, 255), 3, 1, 0);
+    // }
 
     for (auto &&bbox : trackingBoxes)
     {
@@ -144,7 +151,42 @@ void Application::DrawBoxAndPoints(cv::Mat &image,
         {
             cv::circle(image, p, 1, cv::Scalar(0, 0, 255), 2);
         }
+        std::stringstream ss;
+        ss << "[" << bbox.ClassId << "] [" << bbox.TrackId << "]";
+        cv::putText(image, ss.str(),
+                    cv::Point2f(bbox.Box.x - bbox.Box.w, bbox.Box.y - bbox.Box.h / 2 - 20),
+                    cv::FONT_HERSHEY_COMPLEX,
+                    1.0,
+                    cv::Scalar(0, 255, 0),
+                    2);
     }
     cv::imshow(cWindowName, image);
     cv::waitKey(1);
+}
+
+void Application::OnEvent(Event &e)
+{
+    auto t = e.GetEventType();
+    if (t == EventType::DrawBBox)
+    {
+        auto event = static_cast<BBoxDrawingEvent &>(e);
+        for (auto &&bbox : event.BBoxes)
+        {
+            cv::rectangle(pFrame->Image,
+                          cv::Point2f(bbox.Box.x - bbox.Box.w, bbox.Box.y - bbox.Box.h / 2),
+                          cv::Point2f(bbox.Box.x + bbox.Box.w / 2, bbox.Box.y + bbox.Box.h / 2),
+                          cv::Scalar(255, 0, 255), 3, 1, 0);
+            std::stringstream ss;
+            ss << "[" << bbox.ClassId << "] [" << bbox.Probability << "]";
+            cv::putText(pFrame->Image, ss.str(),
+                        cv::Point2f(bbox.Box.x, bbox.Box.y - bbox.Box.h / 2 - 20),
+                        cv::FONT_HERSHEY_COMPLEX,
+                        1.0,
+                        cv::Scalar(255, 0, 255),
+                        2);
+        }
+
+        // cv::imshow(cWindowName, pFrame->Image);
+        // cv::waitKey(1);
+    }
 }

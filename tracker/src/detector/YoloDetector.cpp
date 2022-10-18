@@ -1,4 +1,5 @@
 #include "YoloDetector.h"
+#include "BBoxDrawingEvent.h"
 
 namespace gryllidae
 {
@@ -62,6 +63,9 @@ namespace gryllidae
 
         free_detections(dets, nboxes);
 
+        // callback
+        BBoxDrawingEvent e(bbox_vec);
+        mEventCallback(e);
         return bbox_vec;
     }
 
@@ -106,4 +110,6 @@ namespace gryllidae
         }
         return max_i;
     }
+
+
 } // namespace gryllidae

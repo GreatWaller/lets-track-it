@@ -26,8 +26,12 @@ namespace gryllidae
         ~YoloDetector();
         std::vector<BBox> Detect(Frame::Ptr frame) override;
 
+        void SetEventCallback(const EventCallbackFn& callback) override{ mEventCallback=callback;}
+
     private:
         image MatToImage(cv::Mat mat);
         int max_index(float *a, int n);
+
+        EventCallbackFn mEventCallback;
     };
 } // namespace gryllidae

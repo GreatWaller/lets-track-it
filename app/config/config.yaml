@@ -1,8 +1,8 @@
 %YAML:1.0
 
 # video
-# input: ../data/person.h264
-input: "rtsp://admin:fnst1234@10.10.20.67"
+input: ../data/person.h264
+# input: "rtsp://admin:fnst1234@10.10.20.67"
 width: 1920
 height: 1080
 
@@ -14,5 +14,5 @@ target_class: 0
 skip_frame: 8
 max_distance: 150
 min_matching_features: 32
-max_miss: 8
+max_miss: 9
 # detecte_skip: 16

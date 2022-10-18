@@ -18,7 +18,7 @@ namespace gryllidae
 
         std::vector<cv::Point2f> mPrevFeatures;
 
-        // cache
+        // test cache
         cv::Mat mPrevGray;
         std::vector<BBox> mPrevBBox;
 

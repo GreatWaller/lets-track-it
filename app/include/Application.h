@@ -4,6 +4,7 @@
 #include "detector/Detector.h"
 #include "DetectorCreator.hpp"
 #include "tracker/OptFlowTracker.h"
+#include "Event.h"
 
 class Application
 {
@@ -17,6 +18,7 @@ public:
     void DrawBoxAndPoints(cv::Mat &image,
                           std::vector<gryllidae::BBox> &detectedBoxes,
                           std::vector<gryllidae::BBox> &trackingBoxes);
+    void OnEvent(gryllidae::Event& e);
 
 private:
     std::unique_ptr<gryllidae::Video> pVideo = nullptr;
